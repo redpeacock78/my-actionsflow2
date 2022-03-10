@@ -23,17 +23,17 @@ jobs:
             aria2c -q -x5 ${{ on.poll.outputs.videoUrl }} -o ${name}
             type=$(awk -F ',' '{print $1}' <<<$(file -b "./${name}"))
             if [[ "${type}" =~ "ISO Media" ]]; then
-              if [[ ${{ on.poll.outputs.category }} == "24hour" ]]; then
+              if [[ "${{ on.poll.outputs.category }}" == "24hour" ]]; then
                 curl -s \
                   -F "file1=@${name}" \
                   -F "payload_json={\"content\": \"${link}\"}" \
                   ${{ secrets.DISCORD_HOZONV_DAY }}
-              elif [[ {{ on.poll.outputs.category }} == "1week" ]]; then
+              elif [[ "${{ on.poll.outputs.category }}" == "1week" ]]; then
                 curl -s \
                   -F "file1=@${name}" \
                   -F "payload_json={\"content\": \"${link}\"}" \
                   ${{ secrets.DISCORD_HOZONV_WEEK }}
-              else [[ {{ on.poll.outputs.category }} == "1month" ]]; then
+              else [[ "${{ on.poll.outputs.category }}" == "1month" ]]; then
                 curl -s \
                   -F "file1=@${name}" \
                   -F "payload_json={\"content\": \"${link}\"}" \
