@@ -1,0 +1,43 @@
+on:
+  poll:
+    url:
+      - "https://api.hozonv.tk/v1/day"
+      - "https://api.hozonv.tk/v1/week"
+      - "https://api.hozonv.tk/v1/month"
+    itemsPath: items
+    deduplicationKey: id
+    buildOutputsOnError: true
+    config:
+      skipOnError: true
+
+jobs:
+  post:
+    name: Post hozonv-api updates to the discord
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post
+        run: |
+          name=$(awk -F '/' '{print $NF}' <<<${{ on.poll.outputs.videoUrl }})
+          { 
+            aria2c -q -x5 ${{ on.poll.outputs.videoUrl }} -o ${name}
+            type=$(awk -F ',' '{print $1}' <<<$(file -b "./${name}"))
+            if [[ "${type}" =~ "ISO Media" ]]; then
+              if [[ ${{ on.poll.outputs.category }} == "24hour" ]]; then
+                curl -s \
+                  -F "file1=@${name}" \
+                  -F "payload_json={\"content\": \"${{ on.poll.outputs.tweetUrl }}\"}" \
+                  ${{ secrets.DISCORD_HOZONV_DAY }}
+              elif [[ {{ on.poll.outputs.category }} == "1week" ]]; then
+                curl -s \
+                  -F "file1=@${name}" \
+                  -F "payload_json={\"content\": \"${{ on.poll.outputs.tweetUrl }}\"}" \
+                  ${{ secrets.DISCORD_HOZONV_WEEK }}
+              else [[ {{ on.poll.outputs.category }} == "1month" ]]; then
+                curl -s \
+                  -F "file1=@${name}" \
+                  -F "payload_json={\"content\": \"${{ on.poll.outputs.tweetUrl }}\"}" \
+                  ${{ secrets.DISCORD_HOZONV_MONTH }}
+              fi
+            fi
+          } || exit 0
+          sleep 1
