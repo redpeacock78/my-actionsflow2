@@ -1,0 +1,56 @@
+on:
+  poll:
+    url:
+      - "https://api.twivideo.tk/v1/ranking/day"
+      - "https://api.twivideo.tk/v1/ranking/3days"
+      - "https://api.twivideo.tk/v1/ranking/week"
+      - "https://api.twivideo.tk/v1/realtime"
+      - "https://api.twivideo.tk/v1/archives"
+    itemsPath: items
+    deduplicationKey: id
+    buildOutputsOnError: true
+    config:
+      skipOnError: true
+
+jobs:
+  post:
+    name: Post hozonv-api updates to the discord
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post
+        run: |
+          name=$(awk -F '/' '{print $NF}' <<<${{ on.poll.outputs.videoUrl }})
+          link="${{ on.poll.outputs.tweetUrl }}"
+          { 
+            aria2c -q -x5 ${{ on.poll.outputs.videoUrl }} -o ${name}
+            type=$(awk -F ',' '{print $1}' <<<$(file -b "./${name}"))
+            if [[ "${type}" =~ "ISO Media" ]]; then
+              if [[ "${{ on.poll.outputs.category }}" == "ranking:1day" ]]; then
+                curl -s \
+                  -F "file1=@${name}" \
+                  -F "payload_json={\"content\": \"${link}\"}" \
+                  ${{ secrets.DISCORD_TWIVIDEO_24HOUR }}
+              elif [[ "${{ on.poll.outputs.category }}" == "ranking:3days" ]]; then
+                curl -s \
+                  -F "file1=@${name}" \
+                  -F "payload_json={\"content\": \"${link}\"}" \
+                  ${{ secrets.DISCORD_TWIVIDEO_3DAYS }}
+              elif [[ "${{ on.poll.outputs.category }}" == "ranking:week" ]]; then
+                curl -s \
+                  -F "file1=@${name}" \
+                  -F "payload_json={\"content\": \"${link}\"}" \
+                  ${{ secrets.DISCORD_TWIVIDEO_1WEEK }}
+              elif [[ "${{ on.poll.outputs.category }}" == "realtime" ]]; then
+                curl -s \
+                  -F "file1=@${name}" \
+                  -F "payload_json={\"content\": \"${link}\"}" \
+                  ${{ secrets.DISCORD_TWIVIDEO_REALTIME }}
+              elif [[ "${{ on.poll.outputs.category }}" == "archives" ]]; then
+                curl -s \
+                  -F "file1=@${name}" \
+                  -F "payload_json={\"content\": \"${link}\"}" \
+                  ${{ secrets.DISCORD_TWIVIDEO_ARCHIVES }}
+              fi
+            fi
+          } || exit 0
+          sleep 1
