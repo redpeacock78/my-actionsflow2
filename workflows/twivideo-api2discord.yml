@@ -14,7 +14,7 @@ on:
 
 jobs:
   post:
-    name: Post hozonv-api updates to the discord
+    name: Post twivideo-api updates to the discord
     runs-on: ubuntu-latest
     steps:
       - name: Post
