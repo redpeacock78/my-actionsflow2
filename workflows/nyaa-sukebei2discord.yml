@@ -1,0 +1,83 @@
+on:
+  rss:
+    url:
+      # Art - Anime
+      - https://sukebei.nyaa.si/?page=rss&c=1_1&f=0
+      # Art - Doujinshi
+      - https://sukebei.nyaa.si/?page=rss&c=1_2&f=0
+      # Art - Games
+      - https://sukebei.nyaa.si/?page=rss&c=1_3&f=0
+      # Art - Manga
+      - https://sukebei.nyaa.si/?page=rss&c=1_4&f=0
+      # Art - Pictures
+      - https://sukebei.nyaa.si/?page=rss&c=1_5&f=0
+      # Real life - Photobooks and Pictures
+      - https://sukebei.nyaa.si/?page=rss&c=2_1&f=0
+      # Real life - Videos
+      - https://sukebei.nyaa.si/?page=rss&c=2_2&f=0
+    parserConfig:
+      customFields: {
+        item: [
+          ['nyaa:seeders', 'nyaa:seeders'],
+          ['nyaa:leechers', 'nyaa:leechers'],
+          ['nyaa:downloads', 'nyaa:downloads'],
+          ['nyaa:infoHash', 'nyaa:infoHash'],
+          ['nyaa:size', 'nyaa:size'],
+          ['nyaa:categoryId', 'nyaa:categoryId'],
+        ]
+      }
+    config:
+      skipOnError: true
+
+jobs:
+  post:
+    name: Post rss updates to the discord
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post
+        run: |
+          {
+            if [[ ${{ on.rss.outputs.nyaa:categoryId }} == "1_1" ]]; then
+              curl -s \
+                -H "Accept: application/json" \
+                -H "Content-Type: application/json" \
+                -d '{"embeds":[{"title":"**${{ on.rss.outputs.title }}**","description":"${{ on.rss.outputs.contentSnippet }}","url":"${{ on.rss.outputs.guid }}", "thumbnail":{"url":"https://sukebei.nyaa.si/static/img/avatar/default.png"}, "fields": [{"name":":seedling: seeders","value":"${{ on.rss.outputs.nyaa:seeders }}","inline": true},{"name":":arrow_down_small: leechers","value":"${{ on.rss.outputs.nyaa:leechers }}","inline": true},{"name":":arrow_double_down: downloads","value":"${{ on.rss.outputs.nyaa:downloads }}","inline": true},{"name":":open_file_folder: size","value":"${{ on.rss.outputs.nyaa:size }}","inline": true},{"name":":hash: hash","value":"${{ on.rss.outputs.nyaa:infoHash }}","inline": true},{"name":":link: link","value":"${{ on.rss.outputs.link }}"}]}]}' \
+                ${{ secrets.DISCORD_NYAA_SUKEBEI_ANIME }}
+            elif [[ ${{ on.rss.outputs.nyaa:categoryId }} == "1_2" ]]; then
+              curl -s \
+                -H "Accept: application/json" \
+                -H "Content-Type: application/json" \
+                -d '{"embeds":[{"title":"**${{ on.rss.outputs.title }}**","description":"${{ on.rss.outputs.contentSnippet }}","url":"${{ on.rss.outputs.guid }}", "thumbnail":{"url":"https://sukebei.nyaa.si/static/img/avatar/default.png"}, "fields": [{"name":":seedling: seeders","value":"${{ on.rss.outputs.nyaa:seeders }}","inline": true},{"name":":arrow_down_small: leechers","value":"${{ on.rss.outputs.nyaa:leechers }}","inline": true},{"name":":arrow_double_down: downloads","value":"${{ on.rss.outputs.nyaa:downloads }}","inline": true},{"name":":open_file_folder: size","value":"${{ on.rss.outputs.nyaa:size }}","inline": true},{"name":":hash: hash","value":"${{ on.rss.outputs.nyaa:infoHash }}","inline": true},{"name":":link: link","value":"${{ on.rss.outputs.link }}"}]}]}' \
+                ${{ secrets.DISCORD_NYAA_SUKEBEI_DOUJINSHI }}
+            elif [[ ${{ on.rss.outputs.nyaa:categoryId }} == "1_3" ]]; then
+              curl -s \
+                -H "Accept: application/json" \
+                -H "Content-Type: application/json" \
+                -d '{"embeds":[{"title":"**${{ on.rss.outputs.title }}**","description":"${{ on.rss.outputs.contentSnippet }}","url":"${{ on.rss.outputs.guid }}", "thumbnail":{"url":"https://sukebei.nyaa.si/static/img/avatar/default.png"}, "fields": [{"name":":seedling: seeders","value":"${{ on.rss.outputs.nyaa:seeders }}","inline": true},{"name":":arrow_down_small: leechers","value":"${{ on.rss.outputs.nyaa:leechers }}","inline": true},{"name":":arrow_double_down: downloads","value":"${{ on.rss.outputs.nyaa:downloads }}","inline": true},{"name":":open_file_folder: size","value":"${{ on.rss.outputs.nyaa:size }}","inline": true},{"name":":hash: hash","value":"${{ on.rss.outputs.nyaa:infoHash }}","inline": true},{"name":":link: link","value":"${{ on.rss.outputs.link }}"}]}]}' \
+                ${{ secrets.DISCORD_NYAA_SUKEBEI_GAMES }}
+            elif [[ ${{ on.rss.outputs.nyaa:categoryId }} == "1_4" ]]; then
+              curl -s \
+                -H "Accept: application/json" \
+                -H "Content-Type: application/json" \
+                -d '{"embeds":[{"title":"**${{ on.rss.outputs.title }}**","description":"${{ on.rss.outputs.contentSnippet }}","url":"${{ on.rss.outputs.guid }}", "thumbnail":{"url":"https://sukebei.nyaa.si/static/img/avatar/default.png"}, "fields": [{"name":":seedling: seeders","value":"${{ on.rss.outputs.nyaa:seeders }}","inline": true},{"name":":arrow_down_small: leechers","value":"${{ on.rss.outputs.nyaa:leechers }}","inline": true},{"name":":arrow_double_down: downloads","value":"${{ on.rss.outputs.nyaa:downloads }}","inline": true},{"name":":open_file_folder: size","value":"${{ on.rss.outputs.nyaa:size }}","inline": true},{"name":":hash: hash","value":"${{ on.rss.outputs.nyaa:infoHash }}","inline": true},{"name":":link: link","value":"${{ on.rss.outputs.link }}"}]}]}' \
+                ${{ secrets.DISCORD_NYAA_SUKEBEI_MANGA }}
+            elif [[ ${{ on.rss.outputs.nyaa:categoryId }} == "1_5" ]]; then
+              curl -s \
+                -H "Accept: application/json" \
+                -H "Content-Type: application/json" \
+                -d '{"embeds":[{"title":"**${{ on.rss.outputs.title }}**","description":"${{ on.rss.outputs.contentSnippet }}","url":"${{ on.rss.outputs.guid }}", "thumbnail":{"url":"https://sukebei.nyaa.si/static/img/avatar/default.png"}, "fields": [{"name":":seedling: seeders","value":"${{ on.rss.outputs.nyaa:seeders }}","inline": true},{"name":":arrow_down_small: leechers","value":"${{ on.rss.outputs.nyaa:leechers }}","inline": true},{"name":":arrow_double_down: downloads","value":"${{ on.rss.outputs.nyaa:downloads }}","inline": true},{"name":":open_file_folder: size","value":"${{ on.rss.outputs.nyaa:size }}","inline": true},{"name":":hash: hash","value":"${{ on.rss.outputs.nyaa:infoHash }}","inline": true},{"name":":link: link","value":"${{ on.rss.outputs.link }}"}]}]}' \
+                ${{ secrets.DISCORD_NYAA_SUKEBEI_PICTURES }}
+            elif [[ ${{ on.rss.outputs.nyaa:categoryId }} == "2_1" ]]; then
+              curl -s \
+                -H "Accept: application/json" \
+                -H "Content-Type: application/json" \
+                -d '{"embeds":[{"title":"**${{ on.rss.outputs.title }}**","description":"${{ on.rss.outputs.contentSnippet }}","url":"${{ on.rss.outputs.guid }}", "thumbnail":{"url":"https://sukebei.nyaa.si/static/img/avatar/default.png"}, "fields": [{"name":":seedling: seeders","value":"${{ on.rss.outputs.nyaa:seeders }}","inline": true},{"name":":arrow_down_small: leechers","value":"${{ on.rss.outputs.nyaa:leechers }}","inline": true},{"name":":arrow_double_down: downloads","value":"${{ on.rss.outputs.nyaa:downloads }}","inline": true},{"name":":open_file_folder: size","value":"${{ on.rss.outputs.nyaa:size }}","inline": true},{"name":":hash: hash","value":"${{ on.rss.outputs.nyaa:infoHash }}","inline": true},{"name":":link: link","value":"${{ on.rss.outputs.link }}"}]}]}' \
+                ${{ secrets.DISCORD_NYAA_SUKEBEI_PHOTOBOOKS_AND_PICTURES }}
+            elif [[ ${{ on.rss.outputs.nyaa:categoryId }} == "2_2" ]]; then
+              curl -s \
+                -H "Accept: application/json" \
+                -H "Content-Type: application/json" \
+                -d '{"embeds":[{"title":"**${{ on.rss.outputs.title }}**","description":"${{ on.rss.outputs.contentSnippet }}","url":"${{ on.rss.outputs.guid }}", "thumbnail":{"url":"https://sukebei.nyaa.si/static/img/avatar/default.png"}, "fields": [{"name":":seedling: seeders","value":"${{ on.rss.outputs.nyaa:seeders }}","inline": true},{"name":":arrow_down_small: leechers","value":"${{ on.rss.outputs.nyaa:leechers }}","inline": true},{"name":":arrow_double_down: downloads","value":"${{ on.rss.outputs.nyaa:downloads }}","inline": true},{"name":":open_file_folder: size","value":"${{ on.rss.outputs.nyaa:size }}","inline": true},{"name":":hash: hash","value":"${{ on.rss.outputs.nyaa:infoHash }}","inline": true},{"name":":link: link","value":"${{ on.rss.outputs.link }}"}]}]}' \
+                ${{ secrets.DISCORD_NYAA_SUKEBEI_VIDEOS }}
+            fi
+          } || exit 0
