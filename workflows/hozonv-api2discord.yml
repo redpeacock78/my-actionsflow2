@@ -41,4 +41,3 @@ jobs:
               fi
             fi
           } || exit 0
-          sleep 1
