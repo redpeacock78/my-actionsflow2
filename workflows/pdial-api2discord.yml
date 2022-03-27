@@ -1,10 +1,10 @@
 on:
   poll:
     url:
-      - "https://pdialapp-api.vercel.app/v1/nowDL"
-      - "https://pdialapp-api.vercel.app/v1/dlRank"
-      - "https://pdialapp-api.vercel.app/v1/viewRank"
-      - "https://pdialapp-api.vercel.app/v1/iview"
+      - "https://api.pdialapp.tk/v1/nowDL"
+      - "https://api.pdialapp.tk/v1/dlRank"
+      - "https://api.pdialapp.tk/v1/viewRank"
+      - "https://api.pdialapp.tk/v1/iview"
     itemsPath: items
     deduplicationKey: id
     buildOutputsOnError: true
