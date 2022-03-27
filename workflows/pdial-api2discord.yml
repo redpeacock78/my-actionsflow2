@@ -1,0 +1,50 @@
+on:
+  poll:
+    url:
+      - "https://pdialapp-api.vercel.app/v1/nowDL"
+      - "https://pdialapp-api.vercel.app/v1/dlRank"
+      - "https://pdialapp-api.vercel.app/v1/viewRank"
+      - "https://pdialapp-api.vercel.app/v1/iview"
+    itemsPath: items
+    deduplicationKey: id
+    buildOutputsOnError: true
+    config:
+      skipOnError: true
+
+jobs:
+  post:
+    name: Post pdial-api updates to the discord
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post
+        run: |
+          name=$(awk -F '/' '{print $NF}' <<<${{ on.poll.outputs.videoUrl }})
+          if [[ "${{ on.poll.outputs.category }}" != "iview" ]]; then
+            link="${{ on.poll.outputs.tweetUrl }}"
+          fi
+          { 
+            aria2c -q -x5 ${{ on.poll.outputs.videoUrl }} -o ${name}
+            type=$(awk -F ',' '{print $1}' <<<$(file -b "./${name}"))
+            if [[ "${type}" =~ "ISO Media" ]]; then
+              if [[ "${{ on.poll.outputs.category }}" == "nowDL" ]]; then
+                curl -s \
+                  -F "file1=@${name}" \
+                  -F "payload_json={\"content\": \"${link}\"}" \
+                  ${{ secrets.DISCORD_PDIAL_TREND }}
+              elif [[ "${{ on.poll.outputs.category }}" == "dlRank" ]]; then
+                curl -s \
+                  -F "file1=@${name}" \
+                  -F "payload_json={\"content\": \"${link}\"}" \
+                  ${{ secrets.DISCORD_PDIAL_DL_RANK }}
+              elif [[ "${{ on.poll.outputs.category }}" == "viewRank" ]]; then
+                curl -s \
+                  -F "file1=@${name}" \
+                  -F "payload_json={\"content\": \"${link}\"}" \
+                  ${{ secrets.DISCORD_PDIAL_VIEW_RANK }}
+              elif [[ "${{ on.poll.outputs.category }}" == "iview" ]]; then
+                curl -s \
+                  -F "file1=@${name}" \
+                  ${{ secrets.DISCORD_PDIAL_IVIEW }}
+              fi
+            fi
+          } || exit 0
