@@ -34,12 +34,17 @@ jobs:
     name: Post rss updates to the discord
     runs-on: ubuntu-latest
     steps:
+      - name: Post anonfiles
+        id: anonfiles
+        run: |
+          name=${{ on.rss.outputs.infoHash }}$(awk -F '/' '{print $NF}' <<<${{ on.rss.outputs.link }})
+          curl -s ${{ on.rss.outputs.link }} -o ${name} && \
+          json=$(curl -s -F "file=@${name}" https://api.anonfiles.com/upload) && \
+          echo "::set-output name=json::${json}"
       - name: Post
         run: |
           {
-            name=$(awk -F '/' '{print $NF}' <<<${{ on.rss.outputs.link }})
-            curl -s ${{ on.rss.outputs.link }} -o ${name} && \
-            link=$(curl -s -F "file=@${name}" https://api.anonfiles.com/upload|awk 'BEGIN{FS=","}/full/{sub(/^.*https/,"https",$2);sub(/"$/,"",$2);print $2}'|awk -F '/' '{print "https://anonfiles-api.vercel.app/"$4"/"$5}') && \
+            link="https://anonfiles-api.vercel.app/${{ fromJson(steps.anonfiles.outputs.json).data.file.metadata.id }}/${{ fromJson(steps.anonfiles.outputs.json).data.file.metadata.name }}"
             if [[ ${{ on.rss.outputs.categoryId }} == "1_1" ]]; then
               curl -s \
                 -X POST \
