@@ -1,0 +1,37 @@
+on:
+  poll:
+    url:
+      - "https://twiflix-api.vercel.app/v1/popular"
+      - "https://twiflix-api.vercel.app/v1/recent"
+    itemsPath: items
+    deduplicationKey: id
+    buildOutputsOnError: true
+    config:
+      skipOnError: true
+
+jobs:
+  post:
+    name: Post twiflix-api updates to the discord
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post
+        run: |
+          name=$(awk -F '/' '{print $NF}' <<<${{ on.poll.outputs.videoUrl }})
+          link="${{ on.poll.outputs.tweetUrl }}"
+          { 
+            aria2c -q -x5 ${{ on.poll.outputs.videoUrl }} -o ${name}
+            type=$(awk -F ',' '{print $1}' <<<$(file -b "./${name}"))
+            if [[ "${type}" =~ "ISO Media" ]]; then
+              if [[ "${{ on.poll.outputs.category }}" == "popular" ]]; then
+                curl -s \
+                  -F "file1=@${name}" \
+                  -F "payload_json={\"content\": \"${link}\"}" \
+                  ${{ secrets.DISCORD_TWIFLIX_POPULAR }}
+              elif [[ "${{ on.poll.outputs.category }}" == "recent" ]]; then
+                curl -s \
+                  -F "file1=@${name}" \
+                  -F "payload_json={\"content\": \"${link}\"}" \
+                  ${{ secrets.DISCORD_TWIFLIX_RECENT }}
+              fi
+            fi
+          } || exit 0
